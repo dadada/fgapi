@@ -1,0 +1,14 @@
+[package]
+name = "fgapi"
+version = "0.1.0"
+authors = ["Tim Schubert <mail@timschubert.net>"]
+
+[dependencies]
+rocket = "*"
+rocket_codegen = "*"
+rocket_contrib = "*"
+serde_derive = "*"
+serde = "*"
+serde_json = "*"
+diesel = { version = "1.0.0", features = ["postgres"] }
+dotenv = "0.9.0"
