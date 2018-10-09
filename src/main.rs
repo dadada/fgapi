@@ -1,6 +1,6 @@
 extern crate fgapi;
 
-use fgapi::api::start;
+use fgapi::start;
 
 fn main() {
     start();

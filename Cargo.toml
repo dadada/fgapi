@@ -10,5 +10,5 @@ rocket_contrib = "*"
 serde_derive = "*"
 serde = "*"
 serde_json = "*"
-diesel = { version = "1.0.0", features = ["postgres"] }
+diesel = { version = "1.0.0", features = ["postgres", "r2d2"] }
 dotenv = "0.9.0"
