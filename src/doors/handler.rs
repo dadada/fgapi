@@ -33,9 +33,16 @@ mod tests {
     use std::panic;
     use connection::init_pool;
     use std::time::SystemTime;
+    use std::env;
+    use dotenv::dotenv;
 
     fn setup() -> DbConn {
-        let pool = init_pool();
+        dotenv().ok();
+
+        let mut db_url = env::var("DATABASE_URL")
+            .expect("DATABASE_URL must be set");
+        let db_url = format!("{}{}", db_url, "fgapi_test");
+        let pool = init_pool(db_url);
         let conn = pool.get().expect("Failed to establish database connection");
         diesel::delete(doors).execute(&*conn).expect("Failed to delete doors");
         DbConn(conn)
