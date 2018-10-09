@@ -20,7 +20,6 @@ pub fn start() {
 
     let db_url = std::env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
-    let db_url = format!("{}{}", db_url, "fgapi_test");
     let pool = init_pool(&db_url);
 
     rocket::ignite()

@@ -4,17 +4,17 @@ use doors::repository::*;
 use doors::Door;
 use rocket_contrib::Json;
 
-#[get("/", format = "application/json")]
+#[get("/")]
 pub fn index() -> Json<&'static str> {
     Json("Hello, world!")
 }
 
-#[get("/doors", format = "application/json")]
+#[get("/doors")]
 pub fn list_doors(conn: DbConn) -> QueryResult<Json<Vec<Door>>> {
     all(conn).map(|doors| Json(doors))
 }
 
-#[get("/doors/<door>", format = "application/json")]
+#[get("/doors/<door>")]
 pub fn get_door(conn: DbConn, door: String) -> QueryResult<Json<Door>> {
     get(conn, door).map(|door| Json(door))
 }
@@ -27,7 +27,6 @@ pub fn post_door(conn: DbConn, new_door: Json<Door>) -> QueryResult<Json<Door>> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use connection::establish_test_connection;
     use diesel::RunQueryDsl;
     use schema::doors::dsl::*;
     use std::panic;
@@ -39,10 +38,9 @@ mod tests {
     fn setup() -> DbConn {
         dotenv().ok();
 
-        let mut db_url = env::var("DATABASE_URL")
+        let db_url = env::var("DATABASE_URL")
             .expect("DATABASE_URL must be set");
-        let db_url = format!("{}{}", db_url, "fgapi_test");
-        let pool = init_pool(db_url);
+        let pool = init_pool(&db_url);
         let conn = pool.get().expect("Failed to establish database connection");
         diesel::delete(doors).execute(&*conn).expect("Failed to delete doors");
         DbConn(conn)
