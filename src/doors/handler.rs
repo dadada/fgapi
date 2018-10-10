@@ -1,7 +1,7 @@
 use connection::DbConn;
 use diesel::result::QueryResult;
 use doors::repository::*;
-use doors::Door;
+use doors::{Door, DoorCreateForm, DoorUpdateForm};
 use rocket_contrib::Json;
 
 #[get("/")]
@@ -20,8 +20,14 @@ pub fn get_door(conn: DbConn, door: String) -> QueryResult<Json<Door>> {
 }
 
 #[post("/doors", format = "application/json", data = "<new_door>")]
-pub fn post_door(conn: DbConn, new_door: Json<Door>) -> QueryResult<Json<Door>> {
+pub fn post_door(conn: DbConn, new_door: Json<DoorCreateForm>) -> QueryResult<Json<Door>> {
     create(conn, new_door.into_inner()).map(|door| Json(door))
+}
+
+#[patch("/doors/<door>", format = "application/json", data = "<form>")]
+pub fn patch_door(conn: DbConn, door: String, form: Json<DoorUpdateForm>) -> QueryResult<Json<Door>> {
+    update(conn, door, form.into_inner())
+        .map(|door| Json(door))
 }
 
 #[cfg(test)]
@@ -54,9 +60,9 @@ mod tests {
     #[test]
     fn get_door() {
         let conn = setup();
-        let door = create_from_name(&conn, "iz150");
+        create_from_name(&conn, "iz150").expect("Failed to create door");
         let res = super::get_door(conn, "iz150".to_string());
-        if let Ok(door) = door {
+        if let Ok(door) = res {
             assert_eq!("iz150", &door.id)
         }
     }
@@ -64,14 +70,23 @@ mod tests {
     #[test]
     fn post_door() {
         let conn = setup();
-        let iz150 = Door {
+        let form = DoorCreateForm {
             id: "iz150".to_string(),
             open: false,
-            last_change: SystemTime::now(),
         };
-        let accepted = super::post_door(conn, Json(iz150));
+        let accepted = super::post_door(conn, Json(form));
         if let Ok(i) = accepted {
             assert_eq!("iz150", i.id)
         }
+    }
+
+    #[test]
+    fn patch_door() {
+        let conn = setup();
+        post_door();
+        let form = DoorUpdateForm {
+            open: true,
+        };
+        assert!(super::update(conn, "iz150".to_string(), form).is_ok());
     }
 }
